@@ -3,11 +3,11 @@ import { useState } from 'react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import Modal from '../../Components/Modal';
 import { PencilIcon, PlusIcon, TrashIcon } from '../../Components/Icons';
-import { Field, PrimaryButton, SecondaryButton, Select, TextInput } from '../../Components/Form';
+import { ErrorSummary, Field, PrimaryButton, SecondaryButton, Select, TextInput } from '../../Components/Form';
 
 export default function Skills({ skills, categories }) {
     const [editing, setEditing] = useState(null);
-    const { data, setData, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         name: '',
         category: categories[0],
         sort_order: 0,
@@ -29,9 +29,9 @@ export default function Skills({ skills, categories }) {
         e.preventDefault();
         const options = { preserveScroll: true, onSuccess: close };
         if (editing === 'new') {
-            router.post('/admin/skills', data, options);
+            post('/admin/skills', options);
         } else {
-            router.put(`/admin/skills/${editing.id}`, data, options);
+            put(`/admin/skills/${editing.id}`, options);
         }
     };
 
@@ -97,6 +97,7 @@ export default function Skills({ skills, categories }) {
 
             <Modal show={editing !== null} onClose={close} title={editing === 'new' ? 'Add skill' : 'Edit skill'}>
                 <form onSubmit={submit} className="space-y-4">
+                    <ErrorSummary errors={errors} />
                     <Field label="Name" error={errors.name}>
                         <TextInput value={data.name} onChange={(e) => setData('name', e.target.value)} required autoFocus />
                     </Field>

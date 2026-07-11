@@ -1,13 +1,13 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import ImageInput from '../../../Components/ImageInput';
 import { ArrowLeftIcon } from '../../../Components/Icons';
-import { Checkbox, Field, PrimaryButton, TextArea, TextInput } from '../../../Components/Form';
+import { Checkbox, ErrorSummary, Field, PrimaryButton, TextArea, TextInput } from '../../../Components/Form';
 
 export default function BlogForm({ post }) {
     const isEdit = Boolean(post);
 
-    const { data, setData, processing, errors } = useForm({
+    const { data, setData, post: submitForm, processing, errors } = useForm({
         title: post?.title ?? '',
         slug: post?.slug ?? '',
         excerpt: post?.excerpt ?? '',
@@ -20,9 +20,9 @@ export default function BlogForm({ post }) {
         e.preventDefault();
         const options = { forceFormData: true };
         if (isEdit) {
-            router.post(`/admin/blogs/${post.id}`, data, options);
+            submitForm(`/admin/blogs/${post.id}`, options);
         } else {
-            router.post('/admin/blogs', data, options);
+            submitForm('/admin/blogs', options);
         }
     };
 
@@ -41,6 +41,7 @@ export default function BlogForm({ post }) {
                 onSubmit={submit}
                 className="max-w-3xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
+                <ErrorSummary errors={errors} />
                 <Field label="Title" error={errors.title}>
                     <TextInput value={data.title} onChange={(e) => setData('title', e.target.value)} required />
                 </Field>

@@ -5,14 +5,28 @@ import { ErrorText, Label } from './Form';
  * File input with live preview. Shows the current Cloudinary image (if any)
  * until a new file is selected.
  */
+const MAX_SIZE_MB = 4; // must match the `max:4096` validation rule on the server
+
 export default function ImageInput({ label = 'Image', currentUrl, onChange, error }) {
     const [preview, setPreview] = useState(null);
+    const [sizeError, setSizeError] = useState(null);
     const inputRef = useRef(null);
 
     useEffect(() => () => preview && URL.revokeObjectURL(preview), [preview]);
 
     const handleChange = (e) => {
         const file = e.target.files?.[0] ?? null;
+        if (file && file.size > MAX_SIZE_MB * 1024 * 1024) {
+            setSizeError(
+                `This image is ${(file.size / 1024 / 1024).toFixed(1)} MB — the maximum is ${MAX_SIZE_MB} MB. Please choose a smaller file.`,
+            );
+            onChange(null);
+            if (preview) URL.revokeObjectURL(preview);
+            setPreview(null);
+            e.target.value = '';
+            return;
+        }
+        setSizeError(null);
         onChange(file);
         if (preview) URL.revokeObjectURL(preview);
         setPreview(file ? URL.createObjectURL(file) : null);
@@ -43,7 +57,7 @@ export default function ImageInput({ label = 'Image', currentUrl, onChange, erro
                     className="block text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-slate-300 dark:file:bg-slate-700 dark:file:text-slate-200"
                 />
             </div>
-            <ErrorText error={error} />
+            <ErrorText error={sizeError ?? error} />
         </div>
     );
 }

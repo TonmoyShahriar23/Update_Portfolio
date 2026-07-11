@@ -62,7 +62,7 @@ class CertificateController extends Controller
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'issuer' => ['nullable', 'string', 'max:255'],
-            'issued_at' => ['nullable', 'date'],
+            'issued_at' => ['nullable', 'date', 'after_or_equal:1900-01-01', 'before_or_equal:2100-12-31'],
             'credential_url' => ['nullable', 'url', 'max:500'],
             'sort_order' => ['integer', 'min:0'],
             'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'max:4096'],

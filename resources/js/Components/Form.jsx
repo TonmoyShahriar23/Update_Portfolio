@@ -40,6 +40,18 @@ export function Checkbox({ label, ...props }) {
     );
 }
 
+export function ErrorSummary({ errors }) {
+    if (!errors || Object.keys(errors).length === 0) return null;
+    return (
+        <div
+            role="alert"
+            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+        >
+            Could not save — please fix the highlighted field{Object.keys(errors).length > 1 ? 's' : ''} below.
+        </div>
+    );
+}
+
 export function ErrorText({ error }) {
     if (!error) return null;
     return <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{error}</p>;

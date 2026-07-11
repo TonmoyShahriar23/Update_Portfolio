@@ -14,6 +14,13 @@
 
 html {
     scroll-behavior: smooth;
+    /* Native form controls (date pickers, etc.) follow the active theme,
+       so the calendar icon/popup stays visible in dark mode. */
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
 }
 
 ::selection {

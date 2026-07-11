@@ -44,8 +44,8 @@ class EducationController extends Controller
         return $request->validate([
             'institution' => ['required', 'string', 'max:255'],
             'degree' => ['required', 'string', 'max:255'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date'],
+            'start_date' => ['nullable', 'date', 'after_or_equal:1900-01-01', 'before_or_equal:2100-12-31'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:1900-01-01', 'before_or_equal:2100-12-31'],
             'gpa' => ['nullable', 'string', 'max:50'],
             'highlights' => ['nullable', 'array'],
             'highlights.*' => ['string', 'max:500'],

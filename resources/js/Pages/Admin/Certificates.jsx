@@ -4,7 +4,7 @@ import AdminLayout from '../../Layouts/AdminLayout';
 import ImageInput from '../../Components/ImageInput';
 import Modal from '../../Components/Modal';
 import { PencilIcon, PlusIcon, TrashIcon } from '../../Components/Icons';
-import { Field, PrimaryButton, SecondaryButton, TextInput } from '../../Components/Form';
+import { ErrorSummary, Field, PrimaryButton, SecondaryButton, TextInput } from '../../Components/Form';
 import { formatDate } from '../../utils';
 
 const empty = {
@@ -18,7 +18,7 @@ const empty = {
 
 export default function Certificates({ certificates }) {
     const [editing, setEditing] = useState(null);
-    const { data, setData, processing, errors, reset, clearErrors } = useForm(empty);
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm(empty);
 
     const open = (cert) => {
         clearErrors();
@@ -43,9 +43,9 @@ export default function Certificates({ certificates }) {
         e.preventDefault();
         const options = { forceFormData: true, preserveScroll: true, onSuccess: close };
         if (editing === 'new') {
-            router.post('/admin/certificates', data, options);
+            post('/admin/certificates', options);
         } else {
-            router.post(`/admin/certificates/${editing.id}`, data, options);
+            post(`/admin/certificates/${editing.id}`, options);
         }
     };
 
@@ -103,6 +103,7 @@ export default function Certificates({ certificates }) {
                 title={editing === 'new' ? 'Add certificate' : 'Edit certificate'}
             >
                 <form onSubmit={submit} className="space-y-4">
+                    <ErrorSummary errors={errors} />
                     <Field label="Title" error={errors.title}>
                         <TextInput value={data.title} onChange={(e) => setData('title', e.target.value)} required />
                     </Field>
@@ -113,6 +114,8 @@ export default function Certificates({ certificates }) {
                         <Field label="Issue date" error={errors.issued_at}>
                             <TextInput
                                 type="date"
+                                min="1900-01-01"
+                                max="2100-12-31"
                                 value={data.issued_at}
                                 onChange={(e) => setData('issued_at', e.target.value)}
                             />

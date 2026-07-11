@@ -3,7 +3,7 @@ import { useState } from 'react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import Modal from '../../Components/Modal';
 import { GraduationCapIcon, PencilIcon, PlusIcon, TrashIcon } from '../../Components/Icons';
-import { Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from '../../Components/Form';
+import { ErrorSummary, Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from '../../Components/Form';
 import { formatDate } from '../../utils';
 
 const empty = {
@@ -18,7 +18,7 @@ const empty = {
 
 export default function Education({ educations }) {
     const [editing, setEditing] = useState(null);
-    const { data, setData, processing, errors, reset, clearErrors } = useForm(empty);
+    const { data, setData, post, put, processing, errors, reset, clearErrors, transform } = useForm(empty);
 
     const open = (edu) => {
         clearErrors();
@@ -42,18 +42,18 @@ export default function Education({ educations }) {
 
     const submit = (e) => {
         e.preventDefault();
-        const payload = {
-            ...data,
-            highlights: data.highlights
+        transform((current) => ({
+            ...current,
+            highlights: current.highlights
                 .split('\n')
                 .map((h) => h.trim())
                 .filter(Boolean),
-        };
+        }));
         const options = { preserveScroll: true, onSuccess: close };
         if (editing === 'new') {
-            router.post('/admin/education', payload, options);
+            post('/admin/education', options);
         } else {
-            router.put(`/admin/education/${editing.id}`, payload, options);
+            put(`/admin/education/${editing.id}`, options);
         }
     };
 
@@ -119,6 +119,7 @@ export default function Education({ educations }) {
                 wide
             >
                 <form onSubmit={submit} className="space-y-4">
+                    <ErrorSummary errors={errors} />
                     <div className="grid gap-4 sm:grid-cols-2">
                         <Field label="Institution" error={errors.institution}>
                             <TextInput
@@ -133,6 +134,8 @@ export default function Education({ educations }) {
                         <Field label="Start date" error={errors.start_date}>
                             <TextInput
                                 type="date"
+                                min="1900-01-01"
+                                max="2100-12-31"
                                 value={data.start_date}
                                 onChange={(e) => setData('start_date', e.target.value)}
                             />
@@ -140,6 +143,8 @@ export default function Education({ educations }) {
                         <Field label="End date" error={errors.end_date}>
                             <TextInput
                                 type="date"
+                                min="1900-01-01"
+                                max="2100-12-31"
                                 value={data.end_date}
                                 onChange={(e) => setData('end_date', e.target.value)}
                             />

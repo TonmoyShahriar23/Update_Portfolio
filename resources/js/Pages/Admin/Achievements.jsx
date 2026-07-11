@@ -3,13 +3,13 @@ import { useState } from 'react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import Modal from '../../Components/Modal';
 import { PencilIcon, PlusIcon, TrashIcon, TrophyIcon } from '../../Components/Icons';
-import { Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from '../../Components/Form';
+import { ErrorSummary, Field, PrimaryButton, SecondaryButton, TextArea, TextInput } from '../../Components/Form';
 
 const empty = { title: '', description: '', year: '', sort_order: 0 };
 
 export default function Achievements({ achievements }) {
     const [editing, setEditing] = useState(null);
-    const { data, setData, processing, errors, reset, clearErrors } = useForm(empty);
+    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm(empty);
 
     const open = (item) => {
         clearErrors();
@@ -32,9 +32,9 @@ export default function Achievements({ achievements }) {
         e.preventDefault();
         const options = { preserveScroll: true, onSuccess: close };
         if (editing === 'new') {
-            router.post('/admin/achievements', data, options);
+            post('/admin/achievements', options);
         } else {
-            router.put(`/admin/achievements/${editing.id}`, data, options);
+            put(`/admin/achievements/${editing.id}`, options);
         }
     };
 
@@ -102,6 +102,7 @@ export default function Achievements({ achievements }) {
                 title={editing === 'new' ? 'Add achievement' : 'Edit achievement'}
             >
                 <form onSubmit={submit} className="space-y-4">
+                    <ErrorSummary errors={errors} />
                     <Field label="Title" error={errors.title}>
                         <TextInput value={data.title} onChange={(e) => setData('title', e.target.value)} required />
                     </Field>
