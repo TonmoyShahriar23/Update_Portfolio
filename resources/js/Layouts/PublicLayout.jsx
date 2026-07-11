@@ -127,7 +127,7 @@ export default function PublicLayout({ children, profile }) {
                         )}
                     </div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                        © {new Date().getFullYear()} {profile?.name ?? 'Portfolio'}. Built with Laravel, React &amp; Inertia.
+                        © {new Date().getFullYear()} {profile?.name ?? 'Portfolio'}
                     </p>
                 </div>
             </footer>

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowRightIcon,
     BriefcaseIcon,
     CalendarIcon,
     CodeIcon,
+    EyeIcon,
     ExternalLinkIcon,
     GitHubIcon,
     GraduationCapIcon,
@@ -13,6 +15,7 @@ import {
     TrophyIcon,
 } from '../Components/Icons';
 import PublicLayout from '../Layouts/PublicLayout';
+import Modal from '../Components/Modal';
 import { ErrorText, PrimaryButton, TextArea, TextInput } from '../Components/Form';
 import { experienceRange, formatDate } from '../utils';
 
@@ -281,6 +284,8 @@ function Projects({ projects }) {
 }
 
 function Certificates({ certificates }) {
+    const [activeCert, setActiveCert] = useState(null);
+
     if (!certificates.length) return null;
     return (
         <section id="certificates" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
@@ -292,35 +297,87 @@ function Certificates({ certificates }) {
                             key={cert.id}
                             className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
                         >
-                            {cert.image_url && (
-                                <img
-                                    src={cert.image_url}
-                                    alt={cert.title}
-                                    loading="lazy"
-                                    className="h-44 w-full border-b border-slate-100 object-cover dark:border-slate-800"
-                                />
-                            )}
-                            <div className="p-5">
-                                <h3 className="font-semibold text-slate-900 dark:text-white">{cert.title}</h3>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                    {cert.issuer}
-                                    {cert.issued_at ? ` · ${formatDate(cert.issued_at)}` : ''}
-                                </p>
-                                {cert.credential_url && (
-                                    <a
-                                        href={cert.credential_url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                                    >
-                                        <ExternalLinkIcon className="h-4 w-4" /> View credential
-                                    </a>
+                            <button
+                                type="button"
+                                onClick={() => setActiveCert(cert)}
+                                className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                aria-label={`View ${cert.title}`}
+                            >
+                                {cert.image_url && (
+                                    <img
+                                        src={cert.image_url}
+                                        alt={cert.title}
+                                        loading="lazy"
+                                        className="h-44 w-full border-b border-slate-100 object-cover transition group-hover:scale-105 dark:border-slate-800"
+                                    />
                                 )}
-                            </div>
+                                <div className="p-5">
+                                    <h3 className="font-semibold text-slate-900 dark:text-white">{cert.title}</h3>
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                        {cert.issuer}
+                                        {cert.issued_at ? ` · ${formatDate(cert.issued_at)}` : ''}
+                                    </p>
+                                    <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                        <EyeIcon className="h-4 w-4" /> View certificate
+                                    </span>
+                                </div>
+                            </button>
                         </article>
                     ))}
                 </div>
             </div>
+
+            <Modal
+                show={Boolean(activeCert)}
+                onClose={() => setActiveCert(null)}
+                title={activeCert?.title ?? ''}
+                wide
+            >
+                {activeCert && (
+                    <div className="space-y-4">
+                        {activeCert.image_url && (
+                            <img
+                                src={activeCert.image_url}
+                                alt={activeCert.title}
+                                className="max-h-[65vh] w-full rounded-xl border border-slate-200 object-contain dark:border-slate-700"
+                            />
+                        )}
+                        <dl className="grid gap-3 sm:grid-cols-2">
+                            {activeCert.issuer && (
+                                <div>
+                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                        Issued by
+                                    </dt>
+                                    <dd className="mt-0.5 text-sm font-medium text-slate-900 dark:text-white">
+                                        {activeCert.issuer}
+                                    </dd>
+                                </div>
+                            )}
+                            {activeCert.issued_at && (
+                                <div>
+                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                        Issued on
+                                    </dt>
+                                    <dd className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-slate-900 dark:text-white">
+                                        <CalendarIcon className="h-4 w-4 text-slate-400" />
+                                        {formatDate(activeCert.issued_at)}
+                                    </dd>
+                                </div>
+                            )}
+                        </dl>
+                        {activeCert.credential_url && (
+                            <a
+                                href={activeCert.credential_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                            >
+                                <ExternalLinkIcon className="h-4 w-4" /> View credential
+                            </a>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </section>
     );
 }
@@ -597,7 +654,6 @@ export default function Home({
             <Certificates certificates={certificates} />
             <Education educations={educations} />
             <Achievements achievements={achievements} />
-            <BlogPreview posts={latestPosts} />
             <Contact profile={profile} />
         </PublicLayout>
     );
