@@ -1,58 +1,50 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mostaque Shahriar Tonmoy — Portfolio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A fully dynamic personal portfolio built with **Laravel 13**, **React 19 (Inertia.js)**, **Tailwind CSS v4**, and **MySQL**, with all media stored on **Cloudinary** (deploy-safe for ephemeral filesystems like Railway/Render).
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Public site** — Hero, About, Skills (categorized), Experience timeline, Projects, Certificates gallery, Education, Achievements, Blog (list + post pages), Contact form (saved to DB).
+- **Admin panel** (`/admin`) — manage every section above, plus contact-message inbox with read/unread. No public registration; single seeded admin.
+- **Dark/light mode** — navbar toggle, persisted in `localStorage`, applied pre-paint (no flash).
+- **Cloudinary media** — profile photo, project images, certificate images, and blog thumbnails upload to Cloudinary; only the secure URL + `public_id` are stored. Replaced/deleted records clean up their Cloudinary assets.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Local development (Laragon)
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+# .env is already configured for MySQL (portfolio_db) + Cloudinary
+php artisan migrate:fresh --seed
+npm run build        # or: npm run dev (hot reload)
+php artisan serve    # http://127.0.0.1:8000
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Admin login
 
-## Contributing
+- URL: `http://127.0.0.1:8000/admin/login`
+- Email: `tonmoyshahriar792@gmail.com`
+- Password: `password` — **change this immediately** (update the hash via tinker or re-seed with a new password in `database/seeders/PortfolioSeeder.php`).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Cloudinary
 
-## Code of Conduct
+Configured via `CLOUDINARY_URL` in `.env` (read in `config/services.php`, used by `App\Services\CloudinaryService`).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+> ⚠️ The current API secret is rejected by Cloudinary (`api_secret mismatch`). Copy the exact **API Environment variable** from your Cloudinary dashboard (Settings → API Keys) into `CLOUDINARY_URL` — image uploads will fail until then. Everything else works without it.
 
-## Security Vulnerabilities
+The official `cloudinary-labs/cloudinary-laravel` package doesn't support Laravel 13 yet, so this project uses the official `cloudinary/cloudinary_php` SDK behind a thin service class — same behaviour, no framework coupling.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Tests
 
-## License
+```bash
+php artisan test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Feature tests cover the public pages, publish/draft blog visibility, contact form storage, auth redirects/login, and admin CRUD basics.
+
+## Deploying (Railway / Render)
+
+1. Set env vars: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, the `DB_*` values for the hosted MySQL, and `CLOUDINARY_URL`.
+2. Build command: `composer install --no-dev --optimize-autoloader && npm ci && npm run build`
+3. Release/start: `php artisan migrate --force && php artisan db:seed --force` (first deploy only for the seed), then serve `public/` (e.g. `php artisan serve --host 0.0.0.0 --port $PORT` or nginx/Apache).
+4. No local file storage is used anywhere, so the ephemeral filesystem is safe.
