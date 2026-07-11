@@ -32,7 +32,7 @@ export default function BlogShow({ profile, post }) {
                     />
                 )}
 
-                <div className="mt-8 whitespace-pre-line text-lg leading-relaxed text-slate-700 dark:text-slate-300">
+                <div className="mt-8 whitespace-pre-line break-words text-lg leading-relaxed text-slate-700 dark:text-slate-300">
                     {post.content}
                 </div>
             </article>

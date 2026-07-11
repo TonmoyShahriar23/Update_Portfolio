@@ -31,12 +31,12 @@ export default function Messages({ messages }) {
                     >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
-                                <p className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
-                                    {!msg.is_read && <span className="h-2 w-2 rounded-full bg-indigo-500" />}
+                                <p className="flex flex-wrap items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                                    {!msg.is_read && <span className="h-2 w-2 shrink-0 rounded-full bg-indigo-500" />}
                                     {msg.name}
                                     <a
                                         href={`mailto:${msg.email}`}
-                                        className="text-sm font-normal text-indigo-600 hover:underline dark:text-indigo-400"
+                                        className="break-all text-sm font-normal text-indigo-600 hover:underline dark:text-indigo-400"
                                     >
                                         {msg.email}
                                     </a>

@@ -118,7 +118,7 @@ function About({ profile }) {
         <section id="about" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="About" title="A little background" />
-                <p className="max-w-3xl whitespace-pre-line text-lg leading-relaxed text-slate-600 dark:text-slate-300">
+                <p className="max-w-3xl whitespace-pre-line break-words text-lg leading-relaxed text-slate-600 dark:text-slate-300">
                     {profile.about}
                 </p>
             </div>
@@ -188,7 +188,7 @@ function Experience({ experiences }) {
                                 {exp.location ? ` · ${exp.location}` : ''}
                             </p>
                             {exp.description && (
-                                <p className="mt-2 max-w-3xl whitespace-pre-line leading-relaxed text-slate-600 dark:text-slate-300">
+                                <p className="mt-2 max-w-3xl whitespace-pre-line break-words leading-relaxed text-slate-600 dark:text-slate-300">
                                     {exp.description}
                                 </p>
                             )}
@@ -551,7 +551,8 @@ function Contact({ profile }) {
                                     href={`mailto:${profile.email}`}
                                     className="flex items-center gap-3 hover:text-indigo-600 dark:hover:text-indigo-400"
                                 >
-                                    <MailIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> {profile.email}
+                                    <MailIcon className="h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-400" />{' '}
+                                    <span className="break-all">{profile.email}</span>
                                 </a>
                             )}
                             {profile.location && (
