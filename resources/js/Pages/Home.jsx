@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowRightIcon,
     BriefcaseIcon,
     CalendarIcon,
     CodeIcon,
+    DownloadIcon,
     EyeIcon,
     ExternalLinkIcon,
     GitHubIcon,
@@ -30,82 +31,183 @@ function SectionHeading({ eyebrow, title }) {
     );
 }
 
+// Roles cycled through by the typewriter effect under the name.
+const HERO_ROLES = [
+    'Full-Stack Developer',
+    'AI Enthusiast',
+    'CSE Graduate',
+    'Ex-ML Intern at Future Interns',
+    'Junior Project Manager at Fibu',
+];
+
+// Static tech badges shown under the description, each with its own accent.
+const HERO_TECH = [
+    { name: 'Laravel', className: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' },
+    { name: 'PHP', className: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300' },
+    { name: 'JavaScript', className: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' },
+    { name: 'Python', className: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
+    { name: 'MySQL', className: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400' },
+    { name: 'REST APIs', className: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
+];
+
+// Dependency-free typewriter: types a word, pauses, deletes, moves to the next, loops.
+function useTypewriter(words, { typeSpeed = 90, deleteSpeed = 45, pauseTime = 1400 } = {}) {
+    const [index, setIndex] = useState(0);
+    const [text, setText] = useState('');
+    const [deleting, setDeleting] = useState(false);
+
+    useEffect(() => {
+        const current = words[index % words.length];
+
+        if (!deleting && text === current) {
+            const timeout = setTimeout(() => setDeleting(true), pauseTime);
+            return () => clearTimeout(timeout);
+        }
+
+        if (deleting && text === '') {
+            setDeleting(false);
+            setIndex((i) => (i + 1) % words.length);
+            return undefined;
+        }
+
+        const timeout = setTimeout(
+            () => setText((prev) => (deleting ? current.slice(0, prev.length - 1) : current.slice(0, prev.length + 1))),
+            deleting ? deleteSpeed : typeSpeed,
+        );
+        return () => clearTimeout(timeout);
+    }, [text, deleting, index, words, typeSpeed, deleteSpeed, pauseTime]);
+
+    return text;
+}
+
+function RotatingRoles() {
+    const text = useTypewriter(HERO_ROLES);
+    return (
+        <p className="mt-4 flex min-h-9 items-center justify-center text-xl font-semibold sm:text-2xl md:justify-start">
+            <span className="bg-gradient-to-r from-cyan-500 via-sky-500 to-emerald-500 bg-clip-text text-transparent dark:from-cyan-400 dark:via-sky-400 dark:to-emerald-400">
+                {text}
+            </span>
+            <span className="ml-1 inline-block w-[3px] animate-pulse self-stretch bg-cyan-500 dark:bg-cyan-400" aria-hidden="true" />
+        </p>
+    );
+}
+
 function Hero({ profile }) {
+    const [firstName, ...restName] = profile.name.split(' ');
+
     return (
         <section className="relative overflow-hidden">
             <div
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.15),transparent_55%)]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(6,182,212,0.14),transparent_55%)]"
                 aria-hidden="true"
             />
-            <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-10 px-4 py-20 sm:px-6 md:flex-row md:justify-between md:py-28">
+            <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-12 px-4 py-20 sm:px-6 md:flex-row md:justify-between md:py-28">
                 <div className="max-w-2xl text-center md:text-left">
-                    <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-                        {profile.headline}
-                    </p>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white">
-                        {profile.name}
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-1.5 text-sm font-medium text-emerald-700 ring-1 ring-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                        </span>
+                        Available For New Opportunities
+                    </span>
+
+                    <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                        <span className="text-slate-900 dark:text-white">{firstName}</span>{' '}
+                        {restName.length > 0 && (
+                            <span className="bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-sky-400 dark:to-blue-500">
+                                {restName.join(' ')}
+                            </span>
+                        )}
                     </h1>
+
+                    <RotatingRoles />
+
                     {profile.location && (
-                        <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-slate-500 md:justify-start dark:text-slate-400">
+                        <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-slate-500 md:justify-start dark:text-slate-400">
                             <MapPinIcon className="h-4 w-4" /> {profile.location}
                         </p>
                     )}
+
                     <p className="mt-5 text-lg leading-relaxed text-slate-600 dark:text-slate-300">{profile.summary}</p>
+
+                    <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
+                        {HERO_TECH.map((tech) => (
+                            <span
+                                key={tech.name}
+                                className={`rounded-full px-3 py-1 text-xs font-semibold ${tech.className}`}
+                            >
+                                {tech.name}
+                            </span>
+                        ))}
+                    </div>
+
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
                         <a
-                            href="#contact"
-                            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-500"
-                        >
-                            Get in touch <ArrowRightIcon className="h-4 w-4" />
-                        </a>
-                        <a
                             href="#projects"
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-500/40"
                         >
-                            View projects
+                            View Projects <ArrowRightIcon className="h-4 w-4 -rotate-45" />
                         </a>
-                        <div className="ml-1 flex items-center gap-2">
-                            {profile.github_url && (
-                                <a
-                                    href={profile.github_url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    aria-label="GitHub"
-                                    className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
-                                >
-                                    <GitHubIcon className="h-5 w-5" />
-                                </a>
-                            )}
-                            {profile.linkedin_url && (
-                                <a
-                                    href={profile.linkedin_url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    aria-label="LinkedIn"
-                                    className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
-                                >
-                                    <LinkedInIcon className="h-5 w-5" />
-                                </a>
-                            )}
-                        </div>
+                        {profile.resume_url && (
+                            <a
+                                href={profile.resume_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                            >
+                                <DownloadIcon className="h-4 w-4" /> Download Resume
+                            </a>
+                        )}
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-center gap-3 md:justify-start">
+                        {profile.github_url && (
+                            <a
+                                href={profile.github_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="GitHub"
+                                className="rounded-xl bg-slate-100 p-2.5 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+                            >
+                                <GitHubIcon className="h-5 w-5" />
+                            </a>
+                        )}
+                        {profile.linkedin_url && (
+                            <a
+                                href={profile.linkedin_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="LinkedIn"
+                                className="rounded-xl bg-slate-100 p-2.5 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+                            >
+                                <LinkedInIcon className="h-5 w-5" />
+                            </a>
+                        )}
                     </div>
                 </div>
-                <div className="shrink-0">
-                    {profile.avatar_url ? (
-                        <img
-                            src={profile.avatar_url}
-                            alt={profile.name}
-                            className="h-44 w-44 rounded-full border-4 border-white object-cover shadow-xl sm:h-56 sm:w-56 dark:border-slate-800"
-                        />
-                    ) : (
-                        <div className="flex h-44 w-44 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-5xl font-bold text-white shadow-xl sm:h-56 sm:w-56 sm:text-6xl">
-                            {profile.name
-                                .split(' ')
-                                .map((w) => w[0])
-                                .slice(0, 2)
-                                .join('')}
-                        </div>
-                    )}
+
+                <div className="relative shrink-0">
+                    <div
+                        className="absolute -inset-4 rounded-full bg-gradient-to-tr from-cyan-500 via-blue-500 to-emerald-500 opacity-30 blur-2xl"
+                        aria-hidden="true"
+                    />
+                    <div className="relative rounded-full bg-gradient-to-tr from-cyan-400 via-blue-500 to-emerald-400 p-[3px] shadow-2xl shadow-cyan-500/20">
+                        {profile.avatar_url ? (
+                            <img
+                                src={profile.avatar_url}
+                                alt={profile.name}
+                                className="h-64 w-64 rounded-full object-cover ring-4 ring-white sm:h-80 sm:w-80 lg:h-[420px] lg:w-[420px] dark:ring-slate-900"
+                            />
+                        ) : (
+                            <div className="flex h-64 w-64 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-6xl font-bold text-white ring-4 ring-white sm:h-80 sm:w-80 lg:h-[420px] lg:w-[420px] lg:text-7xl dark:ring-slate-900">
+                                {profile.name
+                                    .split(' ')
+                                    .map((w) => w[0])
+                                    .slice(0, 2)
+                                    .join('')}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </section>

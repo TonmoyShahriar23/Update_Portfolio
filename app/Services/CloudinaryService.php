@@ -22,15 +22,19 @@ class CloudinaryService
     }
 
     /**
-     * Upload an image and return its secure URL + public_id.
+     * Upload a file and return its secure URL + public_id.
+     *
+     * $resourceType is 'image' for photos and 'raw' for documents such as
+     * PDFs (raw assets are delivered as-is and bypass Cloudinary's
+     * PDF-image delivery restriction).
      *
      * @return array{url: string, public_id: string}
      */
-    public function upload(UploadedFile $file, string $folder): array
+    public function upload(UploadedFile $file, string $folder, string $resourceType = 'image'): array
     {
         $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
             'folder' => "portfolio/{$folder}",
-            'resource_type' => 'image',
+            'resource_type' => $resourceType,
         ]);
 
         return [
@@ -40,31 +44,31 @@ class CloudinaryService
     }
 
     /**
-     * Delete an image by public_id. Failures are swallowed — a stale
+     * Delete an asset by public_id. Failures are swallowed — a stale
      * asset on Cloudinary must never block a DB update/delete.
      */
-    public function destroy(?string $publicId): void
+    public function destroy(?string $publicId, string $resourceType = 'image'): void
     {
         if (! $publicId) {
             return;
         }
 
         try {
-            $this->cloudinary->uploadApi()->destroy($publicId, ['resource_type' => 'image']);
+            $this->cloudinary->uploadApi()->destroy($publicId, ['resource_type' => $resourceType]);
         } catch (\Throwable) {
             // ignore
         }
     }
 
     /**
-     * Upload a replacement image, deleting the previous one.
+     * Upload a replacement asset, deleting the previous one.
      *
      * @return array{url: string, public_id: string}
      */
-    public function replace(UploadedFile $file, ?string $oldPublicId, string $folder): array
+    public function replace(UploadedFile $file, ?string $oldPublicId, string $folder, string $resourceType = 'image'): array
     {
-        $uploaded = $this->upload($file, $folder);
-        $this->destroy($oldPublicId);
+        $uploaded = $this->upload($file, $folder, $resourceType);
+        $this->destroy($oldPublicId, $resourceType);
 
         return $uploaded;
     }

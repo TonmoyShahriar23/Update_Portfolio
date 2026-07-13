@@ -33,6 +33,7 @@ class ProfileController extends Controller
             'linkedin_url' => ['nullable', 'url', 'max:500'],
             'resume_url' => ['nullable', 'url', 'max:500'],
             'avatar' => ['nullable', 'image', 'max:4096'],
+            'resume' => ['nullable', 'file', 'mimes:pdf', 'max:8192'],
         ]);
 
         $profile = Profile::current();
@@ -43,7 +44,13 @@ class ProfileController extends Controller
             $data['avatar_public_id'] = $uploaded['public_id'];
         }
 
-        unset($data['avatar']);
+        if ($request->hasFile('resume')) {
+            $uploaded = $cloudinary->replace($request->file('resume'), $profile->resume_public_id, 'resume', 'raw');
+            $data['resume_url'] = $uploaded['url'];
+            $data['resume_public_id'] = $uploaded['public_id'];
+        }
+
+        unset($data['avatar'], $data['resume']);
         $profile->update($data);
 
         return back()->with('success', 'Profile updated.');

@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import ImageInput from '../../Components/ImageInput';
+import FileInput from '../../Components/FileInput';
 import { Field, PrimaryButton, TextArea, TextInput } from '../../Components/Form';
 
 export default function Profile({ profile }) {
@@ -16,6 +17,7 @@ export default function Profile({ profile }) {
         linkedin_url: profile.linkedin_url ?? '',
         resume_url: profile.resume_url ?? '',
         avatar: null,
+        resume: null,
     });
 
     const submit = (e) => {
@@ -35,6 +37,13 @@ export default function Profile({ profile }) {
                     currentUrl={profile.avatar_url}
                     onChange={(file) => setData('avatar', file)}
                     error={errors.avatar}
+                />
+                <FileInput
+                    label="Resume (PDF)"
+                    currentUrl={profile.resume_url}
+                    currentLabel="View current resume"
+                    onChange={(file) => setData('resume', file)}
+                    error={errors.resume}
                 />
                 <div className="grid gap-5 sm:grid-cols-2">
                     <Field label="Name" error={errors.name}>
@@ -64,11 +73,11 @@ export default function Profile({ profile }) {
                     <Field label="Phone" error={errors.phone}>
                         <TextInput value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
                     </Field>
-                    <Field label="Resume URL" error={errors.resume_url}>
+                    <Field label="Resume URL (external link — optional)" error={errors.resume_url}>
                         <TextInput
                             value={data.resume_url}
                             onChange={(e) => setData('resume_url', e.target.value)}
-                            placeholder="https://…"
+                            placeholder="https://… (auto-filled when you upload a PDF)"
                         />
                     </Field>
                     <Field label="GitHub URL" error={errors.github_url}>
