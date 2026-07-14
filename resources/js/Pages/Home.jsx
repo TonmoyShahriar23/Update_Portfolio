@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowRightIcon,
-    BriefcaseIcon,
     CalendarIcon,
     CodeIcon,
     DownloadIcon,
@@ -16,9 +15,13 @@ import {
 } from '../Components/Icons';
 import PublicLayout from '../Layouts/PublicLayout';
 import EducationTimeline from '../Components/EducationTimeline';
+import ExperienceTimeline from '../Components/ExperienceTimeline';
 import Modal from '../Components/Modal';
 import { ErrorText, PrimaryButton, TextArea, TextInput } from '../Components/Form';
-import { experienceRange, formatDate } from '../utils';
+import { formatDate } from '../utils';
+import { motion } from 'framer-motion';
+import { Zap, Cpu, LayoutGrid } from 'lucide-react';
+import { getSkillIcon } from '../skillIcons';
 
 function SectionHeading({ eyebrow, title }) {
     return (
@@ -228,75 +231,153 @@ function About({ profile }) {
     );
 }
 
-function Skills({ skills, skillCategories }) {
+// --- Skills section presentation config -------------------------------------
+// Icons/colors come from the shared skillIcons catalog (getSkillIcon). All
+// actual content (category names, skill names, ordering) still comes from the
+// admin panel via the `skills` / `skillCategories` props.
+
+// Per-category description + featured flag, keyed by the category names from
+// Skill::CATEGORIES. Unknown categories fall back gracefully.
+const CATEGORY_META = {
+    Languages: { description: 'Core programming languages I build with every day.' },
+    'Frameworks & Libraries': { description: 'Frameworks and libraries for fast, modern, high-performance apps.' },
+    'Tools & Platforms': { description: 'The tooling and platforms that power my development workflow.', featured: true },
+    Methodologies: { description: 'Practices and approaches I follow to ship quality software.' },
+    Other: { description: 'Additional skills and areas of expertise.' },
+};
+
+const FALLBACK_CATEGORY_DESCRIPTION = 'Skills and technologies I work with in this area.';
+
+function SkillChip({ name }) {
+    const { Icon, color } = getSkillIcon(name);
+    return (
+        <motion.div
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="group/chip flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-center transition-colors duration-200 hover:border-indigo-400 hover:bg-white hover:shadow-lg hover:shadow-indigo-500/10 dark:border-slate-800 dark:bg-slate-800/50 dark:hover:border-indigo-500/60 dark:hover:bg-slate-800"
+        >
+            <span
+                className="flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-200 group-hover/chip:scale-110"
+                style={{ color, backgroundColor: `${color}22` }}
+            >
+                <Icon className="h-5 w-5" />
+            </span>
+            <span className="text-xs font-medium text-slate-700 dark:text-slate-200">{name}</span>
+        </motion.div>
+    );
+}
+
+function CategoryCard({ category, items, featured }) {
+    const description = CATEGORY_META[category]?.description ?? FALLBACK_CATEGORY_DESCRIPTION;
+    return (
+        <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+            className={
+                featured
+                    ? 'rounded-2xl border border-purple-200 bg-gradient-to-br from-fuchsia-50 via-purple-50 to-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-xl hover:shadow-purple-500/10 dark:border-purple-500/30 dark:from-purple-900/40 dark:via-fuchsia-900/20 dark:to-slate-900/60 dark:hover:shadow-purple-500/20'
+                    : 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-xl hover:shadow-indigo-500/10 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:shadow-indigo-500/10'
+            }
+        >
+            <div className="mb-5 flex items-start justify-between gap-3">
+                <div>
+                    <h3
+                        className={
+                            featured
+                                ? 'text-lg font-bold text-emerald-600 dark:text-emerald-300'
+                                : 'text-lg font-bold text-slate-900 dark:text-white'
+                        }
+                    >
+                        {category}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                </div>
+                <span
+                    className={
+                        featured
+                            ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'
+                            : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-slate-800 dark:text-indigo-300'
+                    }
+                >
+                    <Zap className="h-4 w-4" />
+                </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                {items.map((skill) => (
+                    <SkillChip key={skill.id} name={skill.name} />
+                ))}
+            </div>
+        </motion.div>
+    );
+}
+
+function StatCard({ icon: Icon, value, label, color }) {
+    return (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+            <span
+                className="flex h-10 w-10 items-center justify-center rounded-xl"
+                style={{ color, backgroundColor: `${color}22` }}
+            >
+                <Icon className="h-5 w-5" />
+            </span>
+            <span className="text-3xl font-bold" style={{ color }}>
+                {value}
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                {label}
+            </span>
+        </div>
+    );
+}
+
+function Skills({ skills, skillCategories, experiences = [], projects = [] }) {
     const categories = skillCategories.filter((c) => skills[c]?.length);
     if (!categories.length) return null;
+
+    // One category gets the accent-gradient treatment: whichever is flagged in
+    // CATEGORY_META, otherwise fall back to the last category so it still stands out.
+    const hasFlaggedFeatured = categories.some((c) => CATEGORY_META[c]?.featured);
+    const isFeatured = (category, index) =>
+        CATEGORY_META[category]?.featured ?? (!hasFlaggedFeatured && index === categories.length - 1);
+
+    // Stats derived from live data: total skills, calendar years since the
+    // earliest experience, and total projects.
+    const techCount = categories.reduce((sum, c) => sum + skills[c].length, 0);
+    const startTimes = experiences
+        .map((e) => e.start_date)
+        .filter(Boolean)
+        .map((d) => new Date(d).getTime());
+    const years = startTimes.length
+        ? Math.max(1, Math.floor((Date.now() - Math.min(...startTimes)) / (365.25 * 24 * 60 * 60 * 1000)))
+        : null;
+
+    const stats = [
+        { icon: Zap, value: `${techCount}`, label: 'Technologies', color: '#34D399' },
+        years !== null && { icon: Cpu, value: `${years}+ Yrs`, label: 'Experience', color: '#22D3EE' },
+        { icon: LayoutGrid, value: `${projects.length}`, label: 'Projects', color: '#C084FC' },
+    ].filter(Boolean);
+
     return (
         <section id="skills" className="scroll-mt-20 py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="Skills" title="Technologies I work with" />
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {categories.map((category) => (
-                        <div
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {categories.map((category, index) => (
+                        <CategoryCard
                             key={category}
-                            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
-                        >
-                            <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
-                                <CodeIcon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                {category}
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {skills[category].map((skill) => (
-                                    <span
-                                        key={skill.id}
-                                        className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
-                                    >
-                                        {skill.name}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
+                            category={category}
+                            items={skills[category]}
+                            featured={isFeatured(category, index)}
+                        />
                     ))}
                 </div>
-            </div>
-        </section>
-    );
-}
-
-function Experience({ experiences }) {
-    if (!experiences.length) return null;
-    return (
-        <section id="experience" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <SectionHeading eyebrow="Experience" title="Where I've worked" />
-                <div className="relative ml-3 space-y-10 border-l-2 border-slate-200 pl-8 dark:border-slate-700">
-                    {experiences.map((exp) => (
-                        <div key={exp.id} className="relative">
-                            <span className="absolute -left-[41px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 ring-4 ring-slate-50 dark:ring-slate-900">
-                                <BriefcaseIcon className="h-3 w-3 text-white" />
-                            </span>
-                            <p className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400">
-                                <CalendarIcon className="h-3.5 w-3.5" />
-                                {experienceRange(exp)}
-                                {exp.is_current && (
-                                    <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                                        Current
-                                    </span>
-                                )}
-                            </p>
-                            <h3 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">{exp.title}</h3>
-                            <p className="font-medium text-indigo-600 dark:text-indigo-400">
-                                {exp.company}
-                                {exp.location ? ` · ${exp.location}` : ''}
-                            </p>
-                            {exp.description && (
-                                <p className="mt-2 max-w-3xl whitespace-pre-line break-words leading-relaxed text-slate-600 dark:text-slate-300">
-                                    {exp.description}
-                                </p>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                {stats.length > 0 && (
+                    <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                        {stats.map((stat) => (
+                            <StatCard key={stat.label} {...stat} />
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );
@@ -699,8 +780,8 @@ export default function Home({
             </Head>
             <Hero profile={profile} />
             <About profile={profile} />
-            <Skills skills={skills} skillCategories={skillCategories} />
-            <Experience experiences={experiences} />
+            <Skills skills={skills} skillCategories={skillCategories} experiences={experiences} projects={projects} />
+            <ExperienceTimeline experiences={experiences} />
             <Projects projects={projects} />
             <Certificates certificates={certificates} />
             <EducationTimeline educations={educations} />

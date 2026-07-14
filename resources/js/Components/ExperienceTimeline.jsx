@@ -1,20 +1,21 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { GraduationCap, BookOpen } from 'lucide-react';
+import { Briefcase, Building2 } from 'lucide-react';
 
 const DEFAULT_SUBTITLE =
-    'A structured overview of my academic background, showcasing continuous growth, discipline, and a strong foundation in computer science and engineering.';
+    'A timeline of the roles and internships where I have grown as an engineer, contributed to real products, and sharpened my craft.';
 
-// Year-range pill text, e.g. "2021 – 2025" or "2021 – Present".
-function yearRange(start, end) {
-    const startYear = start ? new Date(start).getFullYear() : '';
-    const endYear = end ? new Date(end).getFullYear() : 'Present';
-    if (!startYear && endYear === 'Present') return '';
-    return `${startYear} – ${endYear}`;
+// Formats an experience date range, e.g. "Jan 2024 – Present".
+function dateRange(start, end, isCurrent) {
+    const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '');
+    const startLabel = fmt(start);
+    const endLabel = isCurrent ? 'Present' : fmt(end) || 'Present';
+    if (!startLabel) return endLabel;
+    return `${startLabel} – ${endLabel}`;
 }
 
-function TimelineCard({ edu, side }) {
-    const range = yearRange(edu.start_date, edu.end_date);
+function TimelineCard({ exp, side }) {
+    const range = dateRange(exp.start_date, exp.end_date, exp.is_current);
 
     return (
         <motion.div
@@ -28,44 +29,43 @@ function TimelineCard({ edu, side }) {
                 side === 'left' ? 'md:ml-auto' : ''
             }`}
         >
-            {/* Date + GPA pills */}
+            {/* Date + Current pills */}
             <div className="flex flex-wrap items-center gap-2">
                 {range && (
                     <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 ring-1 ring-emerald-500/20 dark:text-emerald-400">
                         {range}
                     </span>
                 )}
-                {edu.gpa && (
+                {exp.is_current && (
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 dark:bg-white/5 dark:text-slate-300 dark:ring-white/10">
-                        GPA: {edu.gpa}
+                        Current
                     </span>
                 )}
             </div>
 
-            {/* Degree */}
-            <h3 className="mt-3 text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">{edu.degree}</h3>
+            {/* Title */}
+            <h3 className="mt-3 text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">{exp.title}</h3>
 
-            {/* Institution */}
+            {/* Company + location */}
             <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-teal-600 dark:text-teal-300">
-                <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span>{edu.institution}</span>
+                <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>
+                    {exp.company}
+                    {exp.location ? ` · ${exp.location}` : ''}
+                </span>
             </div>
 
-            {/* Highlights */}
-            {edu.highlights?.length > 0 && (
-                <div className="mt-3 space-y-1.5">
-                    {edu.highlights.map((h, i) => (
-                        <p key={i} className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                            {h}
-                        </p>
-                    ))}
-                </div>
+            {/* Description */}
+            {exp.description && (
+                <p className="mt-3 whitespace-pre-line break-words text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    {exp.description}
+                </p>
             )}
         </motion.div>
     );
 }
 
-export default function EducationTimeline({ educations = [], subtitle = DEFAULT_SUBTITLE }) {
+export default function ExperienceTimeline({ experiences = [], subtitle = DEFAULT_SUBTITLE }) {
     const timelineRef = useRef(null);
 
     // Draw the center line from top to bottom as the section scrolls through the viewport.
@@ -75,17 +75,17 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
     });
     const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
-    if (!educations.length) return null;
+    if (!experiences.length) return null;
 
     return (
-        <section id="education" className="scroll-mt-20 py-20">
+        <section id="experience" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
                 {/* Heading */}
                 <div className="mb-14 text-center">
                     <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                        <span className="text-slate-900 dark:text-white">Academic </span>
+                        <span className="text-slate-900 dark:text-white">Professional </span>
                         <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                            Journey
+                            Experience
                         </span>
                     </h2>
                     {subtitle && (
@@ -106,11 +106,11 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
                     />
 
                     <div className="space-y-10 md:space-y-14">
-                        {educations.map((edu, i) => {
+                        {experiences.map((exp, i) => {
                             // Even entries sit on the right, odd on the left (alternating zigzag).
                             const side = i % 2 === 0 ? 'right' : 'left';
                             return (
-                                <div key={edu.id} className="relative">
+                                <div key={exp.id} className="relative">
                                     {/* Node icon on the center line */}
                                     <motion.span
                                         initial={{ scale: 0, opacity: 0 }}
@@ -119,7 +119,7 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
                                         transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
                                         className="absolute top-2 left-5 z-10 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full bg-gray-950 text-emerald-400 ring-2 ring-emerald-400/60 shadow-[0_0_16px_rgba(16,185,129,0.5)] md:left-1/2"
                                     >
-                                        <GraduationCap className="h-5 w-5" aria-hidden="true" />
+                                        <Briefcase className="h-5 w-5" aria-hidden="true" />
                                     </motion.span>
 
                                     {/* Card column — full width on mobile (offset past the line),
@@ -131,7 +131,7 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
                                                 : 'md:pr-8 md:pl-0'
                                         }`}
                                     >
-                                        <TimelineCard edu={edu} side={side} />
+                                        <TimelineCard exp={exp} side={side} />
                                     </div>
                                 </div>
                             );
