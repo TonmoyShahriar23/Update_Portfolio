@@ -9,13 +9,13 @@ import {
     EyeIcon,
     ExternalLinkIcon,
     GitHubIcon,
-    GraduationCapIcon,
     LinkedInIcon,
     MailIcon,
     MapPinIcon,
     TrophyIcon,
 } from '../Components/Icons';
 import PublicLayout from '../Layouts/PublicLayout';
+import EducationTimeline from '../Components/EducationTimeline';
 import Modal from '../Components/Modal';
 import { ErrorText, PrimaryButton, TextArea, TextInput } from '../Components/Form';
 import { experienceRange, formatDate } from '../utils';
@@ -484,58 +484,6 @@ function Certificates({ certificates }) {
     );
 }
 
-function Education({ educations }) {
-    if (!educations.length) return null;
-    return (
-        <section id="education" className="scroll-mt-20 py-20">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <SectionHeading eyebrow="Education" title="Academic background" />
-                <div className="space-y-6">
-                    {educations.map((edu) => (
-                        <div
-                            key={edu.id}
-                            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-                        >
-                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                <div className="flex items-start gap-3">
-                                    <span className="mt-1 rounded-lg bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-                                        <GraduationCapIcon className="h-5 w-5" />
-                                    </span>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            {edu.degree}
-                                        </h3>
-                                        <p className="font-medium text-indigo-600 dark:text-indigo-400">
-                                            {edu.institution}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right text-sm text-slate-500 dark:text-slate-400">
-                                    {(edu.start_date || edu.end_date) && (
-                                        <p>
-                                            {formatDate(edu.start_date)} – {formatDate(edu.end_date) || 'Present'}
-                                        </p>
-                                    )}
-                                    {edu.gpa && <p className="mt-0.5 font-semibold">CGPA: {edu.gpa}</p>}
-                                </div>
-                            </div>
-                            {edu.highlights?.length > 0 && (
-                                <ul className="mt-4 space-y-1.5 pl-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                                    {edu.highlights.map((h, i) => (
-                                        <li key={i} className="list-disc">
-                                            {h}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
 function Achievements({ achievements }) {
     if (!achievements.length) return null;
     return (
@@ -755,7 +703,7 @@ export default function Home({
             <Experience experiences={experiences} />
             <Projects projects={projects} />
             <Certificates certificates={certificates} />
-            <Education educations={educations} />
+            <EducationTimeline educations={educations} />
             <Achievements achievements={achievements} />
             <Contact profile={profile} />
         </PublicLayout>
