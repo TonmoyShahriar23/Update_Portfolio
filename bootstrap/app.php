@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Cloudinary\Api\Exception\ApiError;
 use Cloudinary\Exception\ConfigurationException;
