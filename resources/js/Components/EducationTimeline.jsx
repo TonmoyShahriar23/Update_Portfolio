@@ -24,7 +24,7 @@ function TimelineCard({ edu, side }) {
             transition={{ duration: 0.55, ease: 'easeOut' }}
             // Content is always left-aligned/LTR; only `md:ml-auto` shifts the whole
             // block to hug the center line — it never affects inner alignment.
-            className={`rounded-xl border border-slate-200 bg-white/80 p-5 text-left shadow-sm backdrop-blur-sm sm:p-6 md:max-w-lg dark:border-gray-800 dark:bg-gray-900/50 ${
+            className={`rounded-xl border border-slate-200 bg-white/80 p-5 text-left shadow-sm backdrop-blur-sm sm:p-6 md:max-w-xl dark:border-gray-800 dark:bg-gray-900/50 ${
                 side === 'left' ? 'md:ml-auto' : ''
             }`}
         >
@@ -105,7 +105,7 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
                         className="absolute top-0 left-5 w-px -translate-x-1/2 bg-gradient-to-b from-emerald-400 to-cyan-400 shadow-[0_0_12px_rgba(16,185,129,0.6)] md:left-1/2"
                     />
 
-                    <div className="space-y-16 md:space-y-28">
+                    <div className="space-y-10 md:space-y-14">
                         {educations.map((edu, i) => {
                             // Even entries sit on the right, odd on the left (alternating zigzag).
                             const side = i % 2 === 0 ? 'right' : 'left';
@@ -127,8 +127,8 @@ export default function EducationTimeline({ educations = [], subtitle = DEFAULT_
                                     <div
                                         className={`pl-16 md:w-1/2 ${
                                             side === 'right'
-                                                ? 'md:ml-auto md:pl-12'
-                                                : 'md:pr-12 md:pl-0'
+                                                ? 'md:ml-auto md:pl-8'
+                                                : 'md:pr-8 md:pl-0'
                                         }`}
                                     >
                                         <TimelineCard edu={edu} side={side} />
