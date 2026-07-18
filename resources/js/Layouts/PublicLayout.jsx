@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import AnimatedBackground from '../Components/AnimatedBackground';
 import Flash from '../Components/Flash';
 import { GitHubIcon, LinkedInIcon, MailIcon, MenuIcon, XIcon } from '../Components/Icons';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -23,7 +24,8 @@ export default function PublicLayout({ children, profile }) {
     const firstName = (profile?.name ?? 'Portfolio').split(' ')[0];
 
     return (
-        <div className="min-h-screen bg-white text-slate-800 transition-colors dark:bg-slate-950 dark:text-slate-200">
+        <div className="relative min-h-screen bg-white text-slate-800 transition-colors dark:bg-slate-950 dark:text-slate-200">
+            <AnimatedBackground />
             <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80">
                 <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
                     <Link href="/" className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
@@ -90,9 +92,9 @@ export default function PublicLayout({ children, profile }) {
                 )}
             </header>
 
-            <main className="pt-16">{children}</main>
+            <main className="relative z-10 pt-16">{children}</main>
 
-            <footer className="border-t border-slate-200 py-10 dark:border-slate-800">
+            <footer className="relative z-10 border-t border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
                 <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 sm:px-6">
                     <div className="flex items-center gap-4">
                         {profile?.github_url && (

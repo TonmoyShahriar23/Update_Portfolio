@@ -3,7 +3,7 @@ import { MoonIcon, SunIcon } from './Icons';
 
 export default function ThemeToggle({ className = '' }) {
     const [dark, setDark] = useState(() =>
-        typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false,
+        typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true,
     );
 
     useEffect(() => {

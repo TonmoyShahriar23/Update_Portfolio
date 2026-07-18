@@ -6,11 +6,10 @@
 
     <title inertia>{{ config('app.name', 'Portfolio') }}</title>
 
-    {{-- Apply saved theme before first paint to avoid a flash of the wrong theme --}}
+    {{-- Dark theme is the default; light applies only if the viewer chose it. Runs before first paint to avoid a flash --}}
     <script>
         (function () {
-            var theme = localStorage.getItem('theme');
-            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.getItem('theme') !== 'light') {
                 document.documentElement.classList.add('dark');
             }
         })();

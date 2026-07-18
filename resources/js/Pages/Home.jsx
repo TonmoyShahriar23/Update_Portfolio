@@ -220,7 +220,7 @@ function Hero({ profile }) {
 function About({ profile }) {
     if (!profile.about) return null;
     return (
-        <section id="about" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
+        <section id="about" className="scroll-mt-20 bg-slate-50/60 py-20 dark:bg-slate-900/40">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="About" title="A little background" />
                 <p className="max-w-3xl whitespace-pre-line break-words text-lg leading-relaxed text-slate-600 dark:text-slate-300">
@@ -471,7 +471,7 @@ function Certificates({ certificates }) {
 
     if (!certificates.length) return null;
     return (
-        <section id="certificates" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
+        <section id="certificates" className="scroll-mt-20 bg-slate-50/60 py-20 dark:bg-slate-900/40">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="Certificates" title="Certifications & courses" />
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -568,7 +568,7 @@ function Certificates({ certificates }) {
 function Achievements({ achievements }) {
     if (!achievements.length) return null;
     return (
-        <section id="achievements" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
+        <section id="achievements" className="scroll-mt-20 bg-slate-50/60 py-20 dark:bg-slate-900/40">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="Achievements" title="Contests & leadership" />
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -667,7 +667,7 @@ function Contact({ profile }) {
     };
 
     return (
-        <section id="contact" className="scroll-mt-20 bg-slate-50 py-20 dark:bg-slate-900/50">
+        <section id="contact" className="scroll-mt-20 bg-slate-50/60 py-20 dark:bg-slate-900/40">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <SectionHeading eyebrow="Contact" title="Let's work together" />
                 <div className="grid gap-12 lg:grid-cols-2">
